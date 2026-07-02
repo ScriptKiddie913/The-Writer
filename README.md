@@ -577,41 +577,6 @@ The Writer uses ReportLab for PDF export.
 | `warm_editorial`   | Editorial nonfiction |
 | `charcoal_ink`     | Monochrome reports   |
 
----
-
-## 📁 Project Structure
-
-```text
-the-writer/
-├── the_writer.py
-├── document_profiles.py
-├── requirements.txt
-├── README.md
-├── LICENSE
-├── generated_pdfs/
-├── fonts/
-└── .gitignore
-```
-
-### `.gitignore`
-
-```gitignore
-__pycache__/
-*.pyc
-*.pyo
-*.pyd
-*.db
-*.sqlite
-*.sqlite3
-*.log
-generated_pdfs/
-.env
-.venv/
-venv/
-.DS_Store
-.idea/
-.vscode/
-```
 
 ---
 
