@@ -994,16 +994,6 @@ Good contribution areas:
 * Tests
 * Documentation
 
-Workflow:
-
-```bash
-fork the repo
-git checkout -b feature/name
-make changes
-test locally
-open pull request
-```
-
 ---
 
 ## 📜 License
@@ -1019,7 +1009,7 @@ Use, modify, distribute, and build on this project with attribution and license 
 ---
 
 <p align="center">
-  <strong>Built locally. Written autonomously. Owned by the creator.</strong>
+  <strong>Built locally. Written autonomously. Owned by the disavowed913.</strong>
 </p>
 
 <p align="center">
