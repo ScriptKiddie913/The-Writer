@@ -1,396 +1,630 @@
-<!--
-  README for: The Writer — Local Multi-Agent Autonomous Writing System
-  Author: disavowed913
+# ✍️ The Writer
+
 <p align="center">
-  <h1 align="center">✍️ The Writer</h1>
-  <p align="center">
-    <strong>Local Multi-Agent Autonomous Writing System powered by Ollama</strong>
-  </p>
-  <p align="center">
-    Generate novels, short stories, poetry collections, technical manuals, executive reports, market research reports, and more — fully offline, with local models, local OCR, project-scoped RAG memory, and professional PDF export.
-  </p>
+  <strong>Local Multi-Agent Autonomous Writing System powered by Ollama</strong>
 </p>
+
+<p align="center">
+  Generate novels, short stories, poetry collections, executive reports, technical manuals, market research reports, CTI reports, and professional PDFs — fully offline with local LLMs, local OCR, project-scoped RAG memory, and crash-resumable generation.
+</p>
+
 <p align="center">
   <img alt="Python" src="https://img.shields.io/badge/Python-3.10%2B-3776AB?style=for-the-badge&logo=python&logoColor=white">
-  <img alt="FastAPI" src="https://img.shields.io/badge/FastAPI-Local%20Backend-009688?style=for-the-badge&logo=fastapi&logoColor=white">
+  <img alt="FastAPI" src="https://img.shields.io/badge/FastAPI-Backend-009688?style=for-the-badge&logo=fastapi&logoColor=white">
   <img alt="Ollama" src="https://img.shields.io/badge/Ollama-Local%20LLMs-111111?style=for-the-badge">
-  <img alt="SQLite" src="https://img.shields.io/badge/SQLite-Persistent%20Memory-003B57?style=for-the-badge&logo=sqlite&logoColor=white">
+  <img alt="SQLite" src="https://img.shields.io/badge/SQLite-Memory%20Store-003B57?style=for-the-badge&logo=sqlite&logoColor=white">
   <img alt="Offline" src="https://img.shields.io/badge/100%25-Offline-success?style=for-the-badge">
   <img alt="License" src="https://img.shields.io/badge/License-MIT-yellow?style=for-the-badge">
 </p>
+
 <p align="center">
-  <a href="#-quick-start">Quick Start</a> •
-  <a href="#-what-this-project-does">Overview</a> •
-  <a href="#-writing-modes">Writing Modes</a> •
-  <a href="#-architecture">Architecture</a> •
-  <a href="#-api-reference">API</a> •
+  <a href="#-quick-start">Quick Start</a>
+  ·
+  <a href="#-features">Features</a>
+  ·
+  <a href="#-writing-modes">Writing Modes</a>
+  ·
+  <a href="#-architecture">Architecture</a>
+  ·
+  <a href="#-api-reference">API</a>
+  ·
   <a href="#-troubleshooting">Troubleshooting</a>
 </p>
+
 ---
-Created By
-The Writer is created and maintained by disavowed913.
-If this project helps you, please consider starring the repository and crediting the original author.
+
+## 👤 Author
+
+**Created and maintained by `disavowed913`**
+
 ```text
-Created by: disavowed913
 Project: The Writer — Local Multi-Agent Autonomous Writing System
+Author: disavowed913
 License: MIT
 ```
+
 ---
-Table of Contents
-What This Project Does
-Why It Exists
-Feature Highlights
-Writing Modes
-Document Type Engine
-Interactive Browser UI
-Architecture
-Agent System
-Knowledge Base and RAG
-OCR Pipeline
-PDF Generation
-Project Structure
-Requirements
-Quick Start
-Recommended Ollama Models
-Configuration
-API Reference
-How Generation Works
-Crash Resume
-Privacy Model
-Troubleshooting
-Roadmap
-License
+
+## 📌 Table of Contents
+
+* [Overview](#-overview)
+* [Features](#-features)
+* [Writing Modes](#-writing-modes)
+* [Document Type Engine](#-document-type-engine)
+* [Interactive Browser UI](#-interactive-browser-ui)
+* [Architecture](#-architecture)
+* [Agent System](#-agent-system)
+* [Knowledge Base](#-knowledge-base)
+* [RAG Memory](#-rag-memory)
+* [OCR Pipeline](#-ocr-pipeline)
+* [PDF Generation](#-pdf-generation)
+* [Project Structure](#-project-structure)
+* [Requirements](#-requirements)
+* [Quick Start](#-quick-start)
+* [Recommended Models](#-recommended-models)
+* [Configuration](#-configuration)
+* [API Reference](#-api-reference)
+* [Generation Flow](#-generation-flow)
+* [Crash Resume](#-crash-resume)
+* [Privacy Model](#-privacy-model)
+* [Custom Fonts](#-custom-fonts)
+* [Example Workflows](#-example-workflows)
+* [Troubleshooting](#-troubleshooting)
+* [Security Notes](#-security-notes)
+* [Roadmap](#-roadmap)
+* [License](#-license)
+
 ---
-What This Project Does
-The Writer is a local autonomous writing platform that coordinates multiple Ollama models as functional writing agents. It can plan, draft, review, revise, track continuity, retrieve project knowledge, and export a polished PDF document without using external AI APIs.
-It is built for serious long-form generation, not one-shot prompting.
-Instead of asking one model to write an entire book in a single response, the system breaks the project into structured units such as chapters, stories, poems, or report sections. It then assigns work to different agents, stores progress in SQLite, retrieves relevant memory with embeddings, and continues until the full document is complete.
-The result is a local writing engine that can generate:
-full multi-chapter novels
-short story collections
-poetry collections
-executive reports
-technical manuals
-academic-style papers
-business proposals
-market research reports
-cyber threat intelligence reports
-professional PDF documents
+
+## 🧠 Overview
+
+**The Writer** is a fully local autonomous writing platform that coordinates multiple Ollama models as functional writing agents.
+
+It is built for long-form generation, structured document creation, professional PDF export, and offline AI-assisted writing workflows.
+
+The system breaks a project into controlled writing units, stores progress in SQLite, retrieves relevant project memory with embeddings, updates summaries and story-bible data, runs review passes, and compiles the final output into a polished PDF.
+
+```text
+One project
+    ↓
+Multiple local agents
+    ↓
+Outline generation
+    ↓
+Unit-by-unit writing
+    ↓
+RAG memory retrieval
+    ↓
+Continuity review
+    ↓
+Revision pass
+    ↓
+PDF export
+```
+
 ---
-Why It Exists
-Most AI writing tools have the same problems:
-they depend on cloud APIs
-they lose continuity after a few pages
-they cannot reliably resume after failure
-they mix unrelated project knowledge
-they produce messy long documents
-they require the user to keep prompting every step
-they are not designed for local/offline writing workflows
-The Writer solves these problems by combining:
-Problem	Solution in The Writer
-Model forgets earlier chapters	Project-scoped vector memory and chapter summaries
-Long books lose continuity	Story bible, entity tracking, continuity review
-Generation crashes	SQLite-backed resumable generation
-Knowledge from one book leaks into another	Strict per-project knowledge base isolation
-Scanned PDFs are hard to use	Local Ollama OCR pipeline
-Reports need tables/charts/layout	Report-aware PDF rendering blocks
-User must guide every step	Autonomous planning → writing → review → PDF export
-Cloud dependence	Local Ollama models only
+
+## ✨ Features
+
+### Core System
+
+| Feature                          | Status |
+| -------------------------------- | ------ |
+| Local Ollama model orchestration | ✅      |
+| Multi-agent autonomous writing   | ✅      |
+| FastAPI backend                  | ✅      |
+| Embedded browser dashboard       | ✅      |
+| Vanilla HTML/CSS/JS frontend     | ✅      |
+| SQLite persistence               | ✅      |
+| Crash-resumable generation       | ✅      |
+| Local-only execution             | ✅      |
+| REST API                         | ✅      |
+| Project deletion and cleanup     | ✅      |
+| Live logs and status polling     | ✅      |
+
+### Writing Features
+
+| Feature                                  | Status |
+| ---------------------------------------- | ------ |
+| Novel generation                         | ✅      |
+| Short story collection generation        | ✅      |
+| Poetry collection generation             | ✅      |
+| Executive report generation              | ✅      |
+| Technical manual support                 | ✅      |
+| Academic paper support                   | ✅      |
+| Market research report support           | ✅      |
+| Cyber threat intelligence report support | ✅      |
+| Business proposal support                | ✅      |
+| Chapter/section/story/poem planning      | ✅      |
+| Continuity review                        | ✅      |
+| Corrective rewrite pass                  | ✅      |
+| Unit summaries                           | ✅      |
+| Story bible extraction                   | ✅      |
+| Entity tracking                          | ✅      |
+
+### Knowledge Features
+
+| Input Type  | Support |
+| ----------- | ------- |
+| PDF         | ✅       |
+| Scanned PDF | ✅       |
+| Images      | ✅       |
+| Screenshots | ✅       |
+| TXT         | ✅       |
+| Markdown    | ✅       |
+| CSV         | ✅       |
+| XLSX / XLSM | ✅       |
+| DOCX        | ✅       |
+| PPTX        | ✅       |
+| JSON        | ✅       |
+| Pasted text | ✅       |
+
+### Export Features
+
+| Export          | Status  |
+| --------------- | ------- |
+| PDF             | ✅       |
+| DOCX            | Planned |
+| Markdown        | Planned |
+| EPUB            | Planned |
+| Project archive | Planned |
+
 ---
-Feature Highlights
-Core Writing Features
-Multi-agent autonomous writing pipeline
-Local Ollama model orchestration
-Mode-specific prompt routing
-Long-form generation across many units
-Chapter/section/story/poem planning
-Continuity validation
-Corrective revision pass
-Persistent chapter summaries
-Story bible extraction for fiction modes
-Local RAG memory retrieval
-Automatic PDF compilation
-Knowledge Features
-Project-specific knowledge base
-PDF ingestion
-Image OCR
-Scanned document OCR
-TXT/Markdown ingestion
-CSV/XLSX extraction
-DOCX extraction
-PPTX slide text extraction
-JSON ingestion
-Pasted text ingestion
-Chunking and embedding
-Source-tagged knowledge chunks
-Knowledge export endpoint
-Dashboard Features
-Browser-based UI
-No React, Streamlit, Gradio, or Electron
-Vanilla HTML/CSS/JS frontend
-Mode selector cards
-Theme chips
-Agent configuration rows
-Local model discovery
-Project list
-Knowledge manager
-Live progress panel
-Chapter/section viewer
-Recent log feed
-PDF download button
-System Features
-SQLite persistence
-Crash-resumable generation
-Environment-variable configuration
-PyInstaller-friendly base directory logic
-Local-only OCR
-Local-only embeddings with hash fallback
-Ollama health checks
-Model availability validation
-Threaded generation runtime
-Stop/resume support
-Built-in REST API
+
+## 📚 Writing Modes
+
+| Mode          | Internal Unit | Best For             | Memory                        | Tables   |
+| ------------- | ------------: | -------------------- | ----------------------------- | -------- |
+| `novel`       |       Chapter | Long-form fiction    | Story bible + summaries       | Disabled |
+| `short_story` |         Story | Anthologies          | Story bible + summaries       | Disabled |
+| `poetry`      |          Poem | Poetry collections   | Lightweight collection memory | Disabled |
+| `report`      |       Section | Professional reports | Section summaries + RAG       | Enabled  |
+
 ---
-Writing Modes
-The system supports four main generation modes. Each mode changes how outlines are created, how text is generated, how review works, and how the PDF is formatted.
-Mode	Internal Unit	Best For	Memory Behavior	Tables
-`novel`	Chapter	Long-form fiction	Story bible + chapter summaries	Disabled by default
-`short_story`	Story	Anthologies	Story bible + story summaries	Disabled by default
-`poetry`	Poem	Poetry collections	Lightweight collection memory	Disabled
-`report`	Section	Professional reports	Section summaries + knowledge retrieval	Enabled
-Novel Mode
-Novel mode is designed for full-length fiction. It creates a complete chapter-by-chapter architecture, then writes chapters one at a time while retrieving relevant earlier summaries and updating a story bible.
+
+## 📖 Novel Mode
+
+Novel mode creates full chapter-by-chapter long-form fiction.
+
 It tracks:
-characters
-locations
-objects
-world-building facts
-plot threads
-key events
-chapter summaries
-continuity notes
-Short Story Mode
-Short story mode generates a collection of standalone stories while preserving a consistent anthology tone. Each story is planned as an independent unit, but the collection can still share theme, genre, style, and author notes.
-Poetry Mode
-Poetry mode is optimized for shorter, form-aware literary pieces. It avoids report-style formatting and keeps the final PDF clean, spacious, and poetry-friendly.
-Report Mode
-Report mode is designed for structured professional documents. Unlike literary modes, report mode can use tables, timelines, KPI cards, callouts, charts, risk matrices, and other visual blocks when useful.
+
+* Characters
+* Locations
+* Objects
+* World-building facts
+* Plot threads
+* Chapter summaries
+* Key events
+* Continuity notes
+* Tone and setting
+* Point-of-view metadata
+
+```text
+Premise
+  ↓
+Architecture
+  ↓
+Chapter outline
+  ↓
+Chapter draft
+  ↓
+Continuity review
+  ↓
+Revision
+  ↓
+Story bible update
+  ↓
+Memory vector storage
+```
+
 ---
-Document Type Engine
-The project includes a dedicated document profile system. The profile engine decides which block types, fonts, styling rules, and formatting behaviors are appropriate for each document type.
-Exposed Document Types
-Document Type	Purpose
-`novel`	Literary long-form fiction
-`short_story_collection`	Standalone short story anthology
-`poetry_collection`	Poetry collections with literary spacing
-`executive_report`	Formal business and operational reports
-`cyber_threat_intelligence_report`	CTI reports with IOC/CVE/MITRE-style structures
-`technical_manual`	Setup guides, API references, troubleshooting docs
-`academic_paper`	Academic-style papers with references, equations, captions
-`business_proposal`	Scope, pricing, deliverables, timelines
-`market_research_report`	Market sizing, competitors, SWOT, personas, trends
-The profile module also contains additional profile definitions that can be enabled if you expand the API validator, such as legal briefs, incident response reports, investment memos, and narrative nonfiction.
+
+## 📘 Short Story Mode
+
+Short story mode generates anthology-style collections.
+
+It supports:
+
+* Independent stories
+* Shared collection tone
+* Thematic consistency
+* Standalone endings
+* Story summaries
+* Collection-level continuity
+
 ---
-Interactive Browser UI
-The frontend is embedded directly inside the FastAPI app and served at:
+
+## ✒️ Poetry Mode
+
+Poetry mode generates form-aware poetry collections.
+
+It supports:
+
+* Free verse
+* Thematic collections
+* Literary spacing
+* Minimal layout
+* Wide whitespace
+* Clean poetry-first PDF styling
+
+---
+
+## 📊 Report Mode
+
+Report mode generates professional structured documents.
+
+It supports:
+
+* Executive summaries
+* Tables
+* KPI cards
+* Timelines
+* Callout boxes
+* Charts
+* Risk matrices
+* Comparison matrices
+* Technical sections
+* Appendices
+* Source notes
+
+---
+
+## 🧩 Document Type Engine
+
+The document profile system controls:
+
+* Allowed blocks
+* Disallowed blocks
+* Fonts
+* Theme defaults
+* Layout behavior
+* Content rules
+* Report/literary formatting boundaries
+
+### Supported Document Types
+
+| Document Type                      | Purpose                                       |
+| ---------------------------------- | --------------------------------------------- |
+| `novel`                            | Long-form fiction                             |
+| `short_story_collection`           | Short story anthology                         |
+| `poetry_collection`                | Poetry collections                            |
+| `executive_report`                 | Business and operational reports              |
+| `cyber_threat_intelligence_report` | CTI reports with IOC/CVE/MITRE blocks         |
+| `technical_manual`                 | Setup guides, API docs, troubleshooting       |
+| `academic_paper`                   | Academic papers with references and equations |
+| `business_proposal`                | Scope, pricing, deliverables, timelines       |
+| `market_research_report`           | Competitors, SWOT, personas, market sizing    |
+
+---
+
+## 🖥 Interactive Browser UI
+
+The dashboard is served directly from FastAPI.
+
 ```text
 http://localhost:8000
 ```
-The UI is designed as an offline writing dashboard with a tactical editorial look.
-UI Sections
-Area	Purpose
-Header	Project identity and navigation
-Health warning	Displays Ollama connection issues
-Project setup	Title, genre, premise, mode, units, word target
-Mode cards	Select Novel, Short Story, Poetry, or Report
-Theme selector	Apply visual styles to the generated PDF and UI accent
-Agent panel	Add architect, writer, and continuity agents
-Knowledge panel	Upload files or paste project knowledge
-Project table	Open, continue, or delete saved projects
-Live status	Track writing phase, word count, progress, logs
-Unit viewer	Read generated chapters/sections/stories/poems
-PDF export	Download the compiled document
-UI Design Philosophy
-The UI avoids heavy frontend frameworks. This keeps the project simple, portable, and easy to run locally.
+
+### UI Areas
+
+| Area            | Purpose                                        |
+| --------------- | ---------------------------------------------- |
+| Header          | Project identity and system status             |
+| Health warning  | Ollama connection and model status             |
+| Project setup   | Title, genre, premise, units, word target      |
+| Mode selector   | Novel, short story, poetry, report             |
+| Theme selector  | PDF and UI styling                             |
+| Agent panel     | Add architect, writer, reviewer agents         |
+| Knowledge panel | Upload files or paste knowledge                |
+| Project table   | Open, resume, delete projects                  |
+| Live status     | Progress, phase, word count, logs              |
+| Unit viewer     | Read generated chapters/sections/poems/stories |
+| PDF export      | Build and download final PDF                   |
+
+### Frontend Stack
+
 ```text
 FastAPI
-  └── serves one embedded HTML page
-        ├── CSS dashboard
-        ├── vanilla JavaScript
-        ├── REST API calls
-        └── live project polling
+  └── Embedded HTML
+      ├── CSS
+      ├── Vanilla JavaScript
+      ├── REST API calls
+      └── Live polling
 ```
+
 ---
-Architecture
+
+## 🏗 Architecture
+
 ```mermaid
 flowchart TD
-    A[User opens browser dashboard] --> B[Create project]
-    B --> C[Select writing mode]
-    C --> D[Add local Ollama agents]
-    D --> E[Attach knowledge base]
-    E --> F[OCR / extraction]
-    F --> G[Chunk + embed]
-    G --> H[SQLite project memory]
-    H --> I[Architect creates outline]
-    I --> J[Writer generates unit]
-    J --> K[Continuity agent reviews]
-    K --> L{Rewrite needed?}
-    L -- Yes --> M[Corrective pass]
-    L -- No --> N[Save unit]
-    M --> N
-    N --> O[Summarize unit]
-    O --> P[Store vector memory]
-    P --> Q{More units?}
-    Q -- Yes --> J
-    Q -- No --> R[Compile PDF]
-    R --> S[Download final document]
+    A[Browser Dashboard] --> B[Create Project]
+    B --> C[Select Writing Mode]
+    C --> D[Configure Agents]
+    D --> E[Attach Knowledge Base]
+    E --> F[OCR / Text Extraction]
+    F --> G[Chunking]
+    G --> H[Embedding]
+    H --> I[SQLite Vector Store]
+    I --> J[Architect Agent]
+    J --> K[Outline Units]
+    K --> L[Writer Agent]
+    L --> M[Continuity Agent]
+    M --> N{Rewrite Needed?}
+    N -- Yes --> O[Corrective Pass]
+    N -- No --> P[Save Unit]
+    O --> P
+    P --> Q[Summarize Unit]
+    Q --> R[Update Memory]
+    R --> S{More Units?}
+    S -- Yes --> L
+    S -- No --> T[Build PDF]
+    T --> U[Download Document]
 ```
-Runtime Components
-Component	Responsibility
-FastAPI app	Backend API, UI serving, generation control
-SQLite database	Projects, agents, chapters, logs, vectors, knowledge docs
-Ollama chat endpoint	Planning, writing, reviewing, summarizing
-Ollama embeddings endpoint	Semantic retrieval for RAG memory
-Hash embedding fallback	Keeps retrieval functional without embedding model
-Ollama vision/OCR endpoint	Local OCR for images and scanned PDFs
-ReportLab renderer	PDF generation and visual blocks
-Vanilla JS frontend	Project creation, upload, polling, reading, export
+
 ---
-Agent System
-Agents are functional roles, not personas.
-Each agent has:
-a name
-an Ollama model
-a role
-an execution order
-Supported Roles
-Role	Required	Responsibility
-`architect`	Yes	Creates outlines, summaries, and story-bible extraction
-`writer`	Yes	Writes each chapter/story/poem/section
-`continuity`	Optional	Reviews output and flags contradictions or quality issues
-Example Agent Setup
-Agent Name	Role	Example Model
-Architect	`architect`	`qwen2.5:7b`
-Primary Writer	`writer`	`llama3.1:8b`
-Reviewer	`continuity`	`mistral:7b`
-Multiple writer agents are rotated using a round-robin scheduler.
+
+## ⚙️ Runtime Components
+
+| Component         | Responsibility                           |
+| ----------------- | ---------------------------------------- |
+| FastAPI           | Backend, API, UI serving                 |
+| SQLite            | Projects, agents, units, logs, vectors   |
+| Ollama Chat       | Planning, writing, review, summarization |
+| Ollama Embeddings | Semantic retrieval                       |
+| Hash Embeddings   | Local fallback retrieval                 |
+| Ollama Vision/OCR | Local OCR for images and scanned PDFs    |
+| ReportLab         | PDF generation                           |
+| PyMuPDF           | PDF rasterization                        |
+| PyPDF             | Text-layer PDF extraction                |
+| python-docx       | DOCX ingestion                           |
+| python-pptx       | PPTX ingestion                           |
+| openpyxl          | Spreadsheet ingestion                    |
+| Vanilla JS        | Dashboard interaction and polling        |
+
 ---
-Knowledge Base and RAG
-Each project has its own isolated knowledge base. Every vector row is stored with a `project_id`, and retrieval always filters by that same project ID.
-This means knowledge from one book cannot be retrieved by another book.
-Supported Knowledge Inputs
-Type	Support	Notes
-PDF	Yes	Uses PyMuPDF OCR path or PyPDF text fallback
-Images	Yes	PNG, JPG, JPEG, WEBP, GIF, BMP
-Text files	Yes	TXT and Markdown
-CSV	Yes	Batch upload endpoint
-Excel	Yes	XLSX/XLSM via OpenPyXL
-DOCX	Yes	Paragraphs and tables via python-docx
-PPTX	Yes	Slide text and notes via python-pptx
-JSON	Yes	Pretty-printed and chunked
-Pasted text	Yes	Stored as a knowledge document
-RAG Flow
+
+## 🤖 Agent System
+
+Agents are functional roles.
+
+No personas.
+
+No roleplay.
+
+No external APIs.
+
+### Agent Fields
+
+| Field       | Description        |
+| ----------- | ------------------ |
+| `name`      | Display name       |
+| `model`     | Local Ollama model |
+| `role`      | Functional role    |
+| `order_idx` | Execution order    |
+
+### Supported Roles
+
+| Role         | Required | Responsibility                     |
+| ------------ | -------: | ---------------------------------- |
+| `architect`  |        ✅ | Creates outlines and structure     |
+| `writer`     |        ✅ | Writes units                       |
+| `continuity` | Optional | Reviews contradictions and quality |
+
+### Example Agent Setup
+
+| Agent          | Role         | Model         |
+| -------------- | ------------ | ------------- |
+| Architect      | `architect`  | `qwen2.5:7b`  |
+| Primary Writer | `writer`     | `llama3.1:8b` |
+| Reviewer       | `continuity` | `mistral:7b`  |
+
+---
+
+## 🗂 Knowledge Base
+
+Every project owns an isolated knowledge base.
+
+Knowledge never crosses projects.
+
+### Supported Knowledge Sources
+
+| Source      | Extraction Method              |
+| ----------- | ------------------------------ |
+| PDF         | OCR or text-layer extraction   |
+| Image       | Local OCR model                |
+| TXT         | Direct text decode             |
+| Markdown    | Direct text decode             |
+| CSV         | Structured row extraction      |
+| XLSX        | Sheet extraction               |
+| DOCX        | Paragraph and table extraction |
+| PPTX        | Slide text and notes           |
+| JSON        | Pretty-print and chunk         |
+| Pasted text | Direct storage                 |
+
+### Storage Model
+
+```text
+knowledge_docs
+    ├── id
+    ├── project_id
+    ├── filename
+    ├── source_type
+    ├── char_count
+    ├── chunk_count
+    ├── status
+    └── error
+
+vectors
+    ├── id
+    ├── project_id
+    ├── chapter_idx
+    ├── kind
+    ├── text
+    ├── embedding
+    ├── dim
+    └── doc_id
+```
+
+---
+
+## 📑 RAG Memory
+
+The Writer uses Retrieval-Augmented Generation for project memory.
+
+### RAG Flow
+
 ```mermaid
 flowchart LR
-    A[Uploaded file] --> B[Extract text]
-    B --> C[Chunk text]
-    C --> D[Tag source chunks]
-    D --> E[Embed chunks]
-    E --> F[Store in SQLite]
-    F --> G[Retrieve by project_id]
-    G --> H[Inject into agent prompt]
+    A[Project Text / Knowledge] --> B[Chunk]
+    B --> C[Embed]
+    C --> D[Store Vector]
+    D --> E[Retrieve by Project ID]
+    E --> F[Inject into Prompt]
+    F --> G[Generate Unit]
 ```
-Why Project-Scoped RAG Matters
-For long-form writing, memory contamination is a real problem. A fantasy novel should not accidentally retrieve knowledge from a cyber threat report. A business proposal should not reuse details from a previous poetry collection.
-The Writer prevents this by treating every project as a separate memory universe.
+
+### Memory Types
+
+| Type               | Purpose                            |
+| ------------------ | ---------------------------------- |
+| `knowledge`        | Uploaded/pasted reference material |
+| `chapter_summary`  | Past unit summaries                |
+| `story_bible`      | Fiction entity memory              |
+| `continuity_notes` | Review and correction memory       |
+
 ---
-OCR Pipeline
-OCR is local and optional, but strongly recommended for knowledge-heavy projects.
-Recommended OCR model:
+
+## 🔍 OCR Pipeline
+
+OCR is fully local through Ollama.
+
+Recommended model:
+
 ```bash
 ollama pull glm-ocr:q8_0
 ```
-PDF OCR Flow
+
+### PDF OCR Flow
+
 ```mermaid
 flowchart TD
-    A[PDF Upload] --> B{PyMuPDF installed?}
-    B -- Yes --> C[Rasterize pages]
-    C --> D[Send page image to local OCR model]
-    D --> E[Extract text]
-    B -- No --> F[Try PyPDF text layer]
+    A[PDF Upload] --> B{PyMuPDF Available?}
+    B -- Yes --> C[Rasterize Pages]
+    C --> D[Send Page Image to OCR Model]
+    D --> E[Transcribed Text]
+    B -- No --> F[Try PyPDF Text Layer]
     F --> E
-    E --> G[Chunk + embed]
+    E --> G[Chunk Text]
+    G --> H[Embed Chunks]
+    H --> I[Store in Project Vector DB]
 ```
-If a PDF is scanned and PyMuPDF is not installed, text extraction may fail. Keep PyMuPDF installed for best results.
+
+### Image OCR Flow
+
+```text
+Image
+  ↓
+Base64 encode
+  ↓
+Ollama vision/OCR model
+  ↓
+Transcribed text
+  ↓
+Chunk
+  ↓
+Embed
+  ↓
+Store
+```
+
 ---
-PDF Generation
-The Writer uses ReportLab to create the final PDF.
-PDF Features
-cover page
-title styling
-mode-aware layouts
-chapter/section breaks
-page numbers
-professional headings
-theme-aware color palettes
-literary formatting for fiction/poetry
-report formatting for structured documents
-tables
-callout boxes
-KPI cards
-timelines
-IOC tables
-code blocks
-basic chart rendering
-Themes
-Theme	Best For
-`classic_cream`	Novels, literary manuscripts
-`midnight_gothic`	Dark/gothic fiction
-`rose_poetics`	Poetry collections
-`modern_corporate`	Executive and business reports
-`minimal_mono`	Technical manuals and academic papers
-`tactical_dark`	CTI and security reports
-`deep_navy`	Professional corporate documents
-`warm_editorial`	Editorial essays and nonfiction
-`charcoal_ink`	Clean monochrome reports
-Literary modes intentionally avoid corporate report decor even if a corporate theme is selected.
+
+## 🧾 PDF Generation
+
+The Writer uses ReportLab for PDF export.
+
+### PDF Features
+
+| Feature             | Support |
+| ------------------- | ------- |
+| Cover page          | ✅       |
+| Page numbers        | ✅       |
+| Chapter breaks      | ✅       |
+| Section headings    | ✅       |
+| Literary formatting | ✅       |
+| Report formatting   | ✅       |
+| Tables              | ✅       |
+| KPI cards           | ✅       |
+| Callout boxes       | ✅       |
+| Timelines           | ✅       |
+| Code blocks         | ✅       |
+| Basic charts        | ✅       |
+| Theme colors        | ✅       |
+| Custom fonts        | ✅       |
+
+### Themes
+
+| Theme              | Best For             |
+| ------------------ | -------------------- |
+| `classic_cream`    | Novels, manuscripts  |
+| `midnight_gothic`  | Gothic/dark fiction  |
+| `rose_poetics`     | Poetry               |
+| `modern_corporate` | Business reports     |
+| `minimal_mono`     | Technical manuals    |
+| `tactical_dark`    | CTI/security reports |
+| `deep_navy`        | Corporate reports    |
+| `warm_editorial`   | Editorial nonfiction |
+| `charcoal_ink`     | Monochrome reports   |
+
 ---
-Project Structure
-Recommended repository layout:
+
+## 📁 Project Structure
+
 ```text
 the-writer/
-├── the_writer.py              # Main FastAPI + Ollama + UI + PDF runtime
-├── document_profiles.py       # Document type rules, fonts, blocks, detection
-├── requirements.txt           # Python dependencies
-├── README.md                  # Project documentation
-├── LICENSE                    # MIT License
-├── generated_pdfs/            # Created automatically at runtime
-├── fonts/                     # Optional custom .ttf/.otf fonts
+├── the_writer.py
+├── document_profiles.py
+├── requirements.txt
+├── README.md
+├── LICENSE
+├── generated_pdfs/
+├── fonts/
 └── .gitignore
 ```
-Suggested `.gitignore`:
+
+### `.gitignore`
+
 ```gitignore
 __pycache__/
 *.pyc
+*.pyo
+*.pyd
 *.db
+*.sqlite
+*.sqlite3
 *.log
 generated_pdfs/
 .env
 .venv/
+venv/
 .DS_Store
+.idea/
+.vscode/
 ```
-The main app imports `document_profiles.py`, so both files must be in the same directory unless you change the import path.
+
 ---
-Requirements
-Python
-Use Python 3.10+.
-The project uses modern typing syntax and Pydantic v2 validators.
-Python Packages
-Install with:
-```bash
-pip install -r requirements.txt
+
+## 📦 Requirements
+
+### Python
+
+```text
+Python 3.10+
 ```
-The generated `requirements.txt` contains:
+
+### `requirements.txt`
+
 ```txt
 fastapi>=0.110.0
 uvicorn[standard]>=0.29.0
@@ -405,72 +639,102 @@ python-docx>=1.1.0
 python-pptx>=0.6.23
 openpyxl>=3.1.0
 ```
-System Requirements
-Requirement	Recommended
-RAM	16 GB minimum, 32 GB recommended for larger models
-Storage	10 GB+ free for models and generated documents
-CPU	Modern multi-core CPU
-GPU	Optional but strongly recommended for large local models
-Ollama	Must be installed and running
+
+### System Requirements
+
+| Resource | Recommended                            |
+| -------- | -------------------------------------- |
+| RAM      | 16 GB minimum, 32 GB recommended       |
+| Storage  | 10 GB+ free                            |
+| CPU      | Modern multi-core                      |
+| GPU      | Optional, recommended for large models |
+| Ollama   | Installed and running                  |
+
 ---
-Quick Start
-1. Clone the Repository
+
+## 🚀 Quick Start
+
+### 1. Clone
+
 ```bash
 git clone https://github.com/YOUR_USERNAME/the-writer.git
 cd the-writer
 ```
-2. Create a Virtual Environment
+
+### 2. Create Virtual Environment
+
 ```bash
 python3 -m venv .venv
 source .venv/bin/activate
 ```
-On Windows PowerShell:
+
+Windows PowerShell:
+
 ```powershell
 python -m venv .venv
 .\.venv\Scripts\Activate.ps1
 ```
-3. Install Dependencies
+
+### 3. Install Dependencies
+
 ```bash
 pip install --upgrade pip
 pip install -r requirements.txt
 ```
-On externally-managed Linux environments, you may need:
+
+Linux externally-managed environments:
+
 ```bash
 pip install -r requirements.txt --break-system-packages
 ```
-Using a virtual environment is cleaner and recommended.
-4. Start Ollama
+
+### 4. Start Ollama
+
 ```bash
 ollama serve
 ```
-5. Pull Models
-At minimum, pull one writing model:
+
+### 5. Pull Models
+
+Minimum:
+
 ```bash
 ollama pull llama3.1:8b
 ```
-Recommended extras:
+
+Recommended:
+
 ```bash
 ollama pull nomic-embed-text
 ollama pull glm-ocr:q8_0
 ```
-6. Run the App
+
+### 6. Run
+
 ```bash
 python the_writer.py
 ```
-7. Open the Dashboard
+
+### 7. Open
+
 ```text
 http://localhost:8000
 ```
+
 ---
-Recommended Ollama Models
-These are examples. You can use any locally installed Ollama-compatible model.
-Task	Recommended Model Type	Notes
-Architect planning	Strong reasoning model	Better outlines and report structure
-Long-form writing	Strong instruction/writing model	Better prose and section drafting
-Continuity review	Fast reasoning model	Good for contradiction checks
-Embeddings	`nomic-embed-text`	Recommended for RAG retrieval
-OCR	`glm-ocr:q8_0`	Recommended for local OCR
-Example setup:
+
+## 🧠 Recommended Models
+
+| Task       | Suggested Model                           |
+| ---------- | ----------------------------------------- |
+| Planning   | `qwen2.5:7b`, `qwen3`, `deepseek-r1`      |
+| Writing    | `llama3.1:8b`, `qwen2.5:7b`, `mistral:7b` |
+| Review     | `mistral:7b`, `gemma`, `qwen2.5`          |
+| Embeddings | `nomic-embed-text`                        |
+| OCR        | `glm-ocr:q8_0`                            |
+
+### Example Configuration
+
 ```text
 Architect Agent  → qwen2.5:7b
 Writer Agent     → llama3.1:8b
@@ -478,330 +742,459 @@ Reviewer Agent   → mistral:7b
 Embedding Model  → nomic-embed-text
 OCR Model        → glm-ocr:q8_0
 ```
+
 ---
-Configuration
-The app is configured through environment variables.
-Variable	Default	Purpose
-`OLLAMA_URL`	`http://localhost:11434`	Ollama daemon URL
-`PRESS_DB_PATH`	`./the_writer.db`	SQLite database path
-`PRESS_PDF_DIR`	`./generated_pdfs`	PDF output directory
-`PRESS_LOG_PATH`	`./the_writer.log`	Log file path
-`PRESS_PORT`	`8000`	FastAPI server port
-`PRESS_OCR_MODEL`	`glm-ocr:q8_0`	Default OCR model
-`PRESS_FONT_DIR`	`./fonts`	Optional custom font directory
-Example:
+
+## ⚙️ Configuration
+
+| Variable          | Default                  | Purpose               |
+| ----------------- | ------------------------ | --------------------- |
+| `OLLAMA_URL`      | `http://localhost:11434` | Ollama daemon URL     |
+| `PRESS_DB_PATH`   | `./the_writer.db`        | SQLite database path  |
+| `PRESS_PDF_DIR`   | `./generated_pdfs`       | PDF output directory  |
+| `PRESS_LOG_PATH`  | `./the_writer.log`       | Log file path         |
+| `PRESS_PORT`      | `8000`                   | Server port           |
+| `PRESS_OCR_MODEL` | `glm-ocr:q8_0`           | Default OCR model     |
+| `PRESS_FONT_DIR`  | `./fonts`                | Custom font directory |
+
+### Example
+
 ```bash
 export PRESS_PORT=9000
 export OLLAMA_URL=http://localhost:11434
 export PRESS_DB_PATH=/data/the_writer.db
 python the_writer.py
 ```
+
 ---
-API Reference
-The dashboard uses the same REST API exposed by the backend.
-System
-Method	Endpoint	Description
-GET	`/api/health`	Check Ollama connection and list models
-GET	`/api/ollama/models`	List local Ollama models
-GET	`/api/modes`	Return writing modes, themes, document types, OCR support
-GET	`/`	Serve the browser UI
-Projects
-Method	Endpoint	Description
-GET	`/api/projects`	List projects
-POST	`/api/project`	Create a project
-GET	`/api/project/{project_id}`	Read project details
-DELETE	`/api/project/{project_id}`	Delete project and generated PDF
-POST	`/api/project/{project_id}/start`	Start or resume generation
-POST	`/api/project/{project_id}/stop`	Request stop
-GET	`/api/project/{project_id}/status`	Get progress, status, logs, percentage
-Units
-Internally, the app stores chapters, stories, poems, and report sections in a shared `chapters` table.
-Method	Endpoint	Description
-GET	`/api/project/{project_id}/chapters`	List generated units
-GET	`/api/project/{project_id}/chapter/{idx}`	Read one generated unit
-GET	`/api/project/{project_id}/pdf`	Build/download PDF
-Knowledge Base
-Method	Endpoint	Description
-GET	`/api/project/{project_id}/knowledge`	List knowledge documents
-POST	`/api/project/{project_id}/knowledge/upload`	Upload one PDF/image/text/Markdown file
-POST	`/api/project/{project_id}/knowledge/upload-batch`	Upload multiple supported files
-POST	`/api/project/{project_id}/knowledge/paste`	Add pasted text
-GET	`/api/project/{project_id}/knowledge/stats`	Knowledge base statistics
-GET	`/api/project/{project_id}/knowledge/export`	Export stored knowledge chunks
-DELETE	`/api/project/{project_id}/knowledge/{doc_id}`	Delete one knowledge document
-DELETE	`/api/project/{project_id}/knowledge`	Clear project knowledge base
-Document Detection
-Method	Endpoint	Description
-GET	`/api/detect_doc_type`	Detect best document profile from title, genre, premise, and notes
+
+## 🔌 API Reference
+
+### System
+
+| Method | Endpoint             | Description                    |
+| ------ | -------------------- | ------------------------------ |
+| `GET`  | `/`                  | Browser UI                     |
+| `GET`  | `/api/health`        | Ollama health and model status |
+| `GET`  | `/api/ollama/models` | Local Ollama model list        |
+| `GET`  | `/api/modes`         | Modes, themes, document types  |
+
+### Projects
+
+| Method   | Endpoint                           | Description             |
+| -------- | ---------------------------------- | ----------------------- |
+| `GET`    | `/api/projects`                    | List projects           |
+| `POST`   | `/api/project`                     | Create project          |
+| `GET`    | `/api/project/{project_id}`        | Project details         |
+| `DELETE` | `/api/project/{project_id}`        | Delete project          |
+| `POST`   | `/api/project/{project_id}/start`  | Start/resume generation |
+| `POST`   | `/api/project/{project_id}/stop`   | Stop generation         |
+| `GET`    | `/api/project/{project_id}/status` | Progress and logs       |
+
+### Units
+
+| Method | Endpoint                                  | Description        |
+| ------ | ----------------------------------------- | ------------------ |
+| `GET`  | `/api/project/{project_id}/chapters`      | List units         |
+| `GET`  | `/api/project/{project_id}/chapter/{idx}` | Read unit          |
+| `GET`  | `/api/project/{project_id}/pdf`           | Build/download PDF |
+
+### Knowledge
+
+| Method   | Endpoint                                           | Description             |
+| -------- | -------------------------------------------------- | ----------------------- |
+| `GET`    | `/api/project/{project_id}/knowledge`              | List knowledge docs     |
+| `POST`   | `/api/project/{project_id}/knowledge/upload`       | Upload one file         |
+| `POST`   | `/api/project/{project_id}/knowledge/upload-batch` | Upload multiple files   |
+| `POST`   | `/api/project/{project_id}/knowledge/paste`        | Add pasted text         |
+| `GET`    | `/api/project/{project_id}/knowledge/stats`        | Knowledge stats         |
+| `GET`    | `/api/project/{project_id}/knowledge/export`       | Export knowledge chunks |
+| `DELETE` | `/api/project/{project_id}/knowledge/{doc_id}`     | Delete one doc          |
+| `DELETE` | `/api/project/{project_id}/knowledge`              | Clear knowledge base    |
+
+### Document Detection
+
+| Method | Endpoint               | Description                  |
+| ------ | ---------------------- | ---------------------------- |
+| `GET`  | `/api/detect_doc_type` | Detect best document profile |
+
 ---
-How Generation Works
-The generation process is fully autonomous after setup.
+
+## 🔄 Generation Flow
+
 ```mermaid
 sequenceDiagram
     participant U as User
-    participant UI as Browser UI
+    participant UI as Browser
     participant API as FastAPI
     participant DB as SQLite
     participant O as Ollama
-    participant PDF as PDF Builder
+    participant PDF as ReportLab
 
     U->>UI: Configure project
-    UI->>API: POST /api/project
-    API->>DB: Save project + agents
+    UI->>API: Create project
+    API->>DB: Save project and agents
     U->>UI: Upload knowledge
     UI->>API: Upload files/text
-    API->>O: OCR / embeddings
-    API->>DB: Store chunks + vectors
-    U->>UI: Start
-    UI->>API: POST /start
+    API->>O: OCR and embeddings
+    API->>DB: Store chunks and vectors
+    U->>UI: Start generation
+    UI->>API: Start project
     API->>O: Architect outline
-    API->>DB: Save units
+    API->>DB: Save outline units
+
     loop Each unit
-        API->>DB: Retrieve summaries + knowledge
-        API->>O: Writer draft
-        API->>DB: Save partial text
-        API->>O: Continuity review
-        API->>O: Corrective pass if needed
-        API->>O: Summary extraction
+        API->>DB: Retrieve memory
+        API->>O: Draft unit
+        API->>DB: Save content
+        API->>O: Review continuity
+        API->>O: Correct if needed
+        API->>O: Summarize
         API->>DB: Store summary vector
     end
-    API->>PDF: Build final PDF
-    PDF->>DB: Use saved content
+
+    API->>PDF: Compile document
     UI->>API: Download PDF
 ```
-Fresh Project Path
-Validate project and agent configuration.
-Check Ollama health.
-Verify required models exist locally.
-Retrieve relevant knowledge based on premise.
-Architect agent creates a structured outline.
-Outline is parsed into units.
-Units are written one by one.
-Summaries and memory vectors are stored after each unit.
-PDF is compiled after all units are complete.
-Resume Path
-If units already exist in the database, the app does not start over. It reloads the outline from saved unit rows and continues from the first incomplete unit.
+
 ---
-Crash Resume
-The app is designed to survive interruptions.
-During writing, content is saved after each generation pass. If the process dies while writing a long unit, restarting the app and clicking Start again will continue from the saved text instead of losing the entire project.
-Stored state includes:
-project config
-agents
-outline units
-partial unit content
-word count
-status
-logs
-summaries
-knowledge vectors
-story bible entities
+
+## 🧱 Database Tables
+
+| Table            | Purpose                                      |
+| ---------------- | -------------------------------------------- |
+| `projects`       | Project metadata and progress                |
+| `agents`         | Agent configuration                          |
+| `chapters`       | Chapters, stories, poems, or report sections |
+| `vectors`        | RAG embeddings                               |
+| `logs`           | Runtime logs                                 |
+| `entities`       | Story bible facts                            |
+| `knowledge_docs` | Uploaded/pasted knowledge metadata           |
+
 ---
-Privacy Model
-The Writer is local-first by design.
-Data	Where It Goes
-Prompts	Local Ollama endpoint
-Uploaded documents	Local process only
-OCR images	Local Ollama OCR model
-Embeddings	Local Ollama embedding model or local hash fallback
-Project database	Local SQLite file
-PDFs	Local output directory
-Logs	Local log file
-No external AI API is called by the application code.
+
+## 🛟 Crash Resume
+
+Stored state:
+
+* Project config
+* Agents
+* Outline units
+* Partial unit content
+* Word count
+* Status
+* Logs
+* Summaries
+* Knowledge vectors
+* Story bible entities
+
+Resume behavior:
+
+```text
+Start clicked
+  ↓
+Project exists
+  ↓
+Units already saved?
+  ↓
+Continue from first incomplete unit
+  ↓
+Preserve completed content
+```
+
 ---
-Custom Fonts
-The app supports optional custom fonts through the `fonts/` directory.
-Add `.ttf` or `.otf` files:
+
+## 🔒 Privacy Model
+
+| Data           | Destination                   |
+| -------------- | ----------------------------- |
+| Prompts        | Local Ollama                  |
+| Uploaded files | Local process                 |
+| OCR images     | Local Ollama OCR              |
+| Embeddings     | Local Ollama or hash fallback |
+| Database       | Local SQLite                  |
+| PDFs           | Local output directory        |
+| Logs           | Local log file                |
+
+```text
+No external AI APIs.
+No cloud inference.
+No remote vector database.
+No third-party OCR.
+No external storage.
+```
+
+---
+
+## 🔤 Custom Fonts
+
+Place `.ttf` or `.otf` files in:
+
+```text
+fonts/
+```
+
+Example:
+
 ```text
 fonts/
 ├── CormorantGaramond-Regular.ttf
 ├── Inter-Regular.ttf
-└── JetBrainsMono-Regular.ttf
+├── JetBrainsMono-Regular.ttf
+└── SourceSans3-Regular.ttf
 ```
-Then restart the app. The PDF renderer attempts to register local font files and falls back to ReportLab-safe fonts when a preferred font is unavailable.
+
+The renderer attempts to register local fonts and falls back to ReportLab-safe fonts.
+
 ---
-Example Use Cases
-Generate a Novel
+
+## 🧪 Example Workflows
+
+### Novel
+
 ```text
 Mode: Novel
 Genre: Dystopian science fiction
 Units: 24 chapters
 Words per unit: 2500
 Theme: Classic Cream
+
 Agents:
   - Architect: qwen2.5:7b
   - Writer: llama3.1:8b
-  - Continuity: mistral:7b
+  - Reviewer: mistral:7b
+
 Knowledge:
-  - worldbuilding notes
-  - character sheets
-  - timeline document
+  - Worldbuilding notes
+  - Character sheets
+  - Timeline document
 ```
-Generate a Cyber Threat Intelligence Report
+
+### Cyber Threat Intelligence Report
+
 ```text
 Mode: Report
 Document Type: Cyber Threat Intelligence Report
 Units: 8 sections
 Words per unit: 900
 Theme: Tactical Dark
+
 Knowledge:
   - IOC CSV
-  - incident notes
-  - screenshots
-  - source PDFs
+  - Incident notes
+  - Screenshots
+  - Source PDFs
 ```
-Generate a Market Research Report
+
+### Market Research Report
+
 ```text
 Mode: Report
 Document Type: Market Research Report
 Units: 7 sections
 Words per unit: 800
 Theme: Modern Corporate
+
 Knowledge:
-  - competitor notes
-  - pricing spreadsheet
-  - survey results
-  - product screenshots
+  - Competitor notes
+  - Pricing spreadsheet
+  - Survey results
+  - Product screenshots
 ```
+
+### Poetry Collection
+
+```text
+Mode: Poetry
+Units: 40 poems
+Words per unit: 150
+Theme: Rose Poetics
+
+Knowledge:
+  - Theme notes
+  - Personal fragments
+  - Style references
+```
+
 ---
-Development Notes
-Why SQLite?
-SQLite keeps the project portable and simple. It stores everything needed for resume and retrieval without requiring a separate database server.
-Tables include:
-`projects`
-`agents`
-`chapters`
-`vectors`
-`logs`
-`entities`
-`knowledge_docs`
-Why ReportLab?
-ReportLab gives direct control over PDF layout, typography, tables, drawings, charts, and page templates without requiring a browser renderer.
-Why Vanilla HTML/CSS/JS?
-The project stays easy to run, inspect, modify, and package. There is no frontend build system and no Node.js dependency.
----
-Troubleshooting
-Ollama is not reachable
-Make sure Ollama is running:
+
+## 🛠 Troubleshooting
+
+### Ollama Not Reachable
+
 ```bash
 ollama serve
 ```
-Then check:
+
 ```bash
 curl http://localhost:11434/api/tags
 ```
-If Ollama is running on another host or port:
+
+Custom Ollama URL:
+
 ```bash
 export OLLAMA_URL=http://127.0.0.1:11434
 python the_writer.py
 ```
-Model not found
-Pull the missing model:
+
+### Model Not Found
+
 ```bash
 ollama pull llama3.1:8b
 ```
-The app validates agent models before generation begins.
-PDF OCR fails
-Install PyMuPDF and make sure the OCR model is available:
+
+### OCR Fails
+
 ```bash
 pip install PyMuPDF
 ollama pull glm-ocr:q8_0
 ```
-Uploads fail
-Make sure `python-multipart` is installed:
+
+### Uploads Fail
+
 ```bash
 pip install python-multipart
 ```
-Pydantic validator error
-The app uses Pydantic v2. Install or upgrade it:
+
+### Pydantic Error
+
 ```bash
 pip install "pydantic>=2.5.0"
 ```
-ReportLab font issues
-If custom fonts fail, the app falls back to default ReportLab fonts. Make sure your font files are valid `.ttf` or `.otf` files.
-Very slow generation
-Local LLMs can be slow for long chapters. Try:
-fewer units
-lower words per unit
-a smaller model
-a faster quantized model
-GPU acceleration
-using a smaller OCR batch
+
+### Slow Generation
+
+Try:
+
+* Smaller model
+* Fewer units
+* Lower words per unit
+* GPU acceleration
+* Smaller OCR batches
+* Faster quantized model
+
+### Font Issues
+
+Use valid `.ttf` or `.otf` files.
+
+Fallback fonts are used automatically.
+
 ---
-Security and Safety Notes
-The project is designed as a local writing system. Uploaded files are processed locally and stored in the local SQLite database as extracted text chunks.
-Be careful when:
-uploading private documents
-sharing the SQLite database
-committing logs or generated PDFs
-exposing the FastAPI port on a public network
-The server binds to `0.0.0.0` by default in the script. For local-only use, you may change the final `uvicorn.run` host to `127.0.0.1`.
+
+## 🛡 Security Notes
+
+Do not commit:
+
+```text
+*.db
+*.log
+generated_pdfs/
+.env
+private documents
+```
+
+Local-only usage:
+
+```python
+uvicorn.run(app, host="127.0.0.1", port=PORT)
+```
+
+Default network-exposed usage:
+
+```python
+uvicorn.run(app, host="0.0.0.0", port=PORT)
+```
+
+Use `127.0.0.1` for private local workflows.
+
 ---
-Packaging Notes
-The app includes logic for frozen/PyInstaller execution. If packaged into a single executable, it stores the database, logs, and PDFs beside the executable instead of inside the temporary unpack directory.
-Example PyInstaller direction:
+
+## 📦 Packaging
+
+PyInstaller direction:
+
 ```bash
 pip install pyinstaller
 pyinstaller --onefile the_writer.py
 ```
-If you use PyInstaller, make sure `document_profiles.py` is included and test file upload/OCR behavior carefully.
+
+Package notes:
+
+```text
+Include document_profiles.py
+Test OCR uploads
+Test generated_pdfs path
+Test SQLite persistence
+Test Ollama URL configuration
+```
+
 ---
-Roadmap
-Planned or recommended improvements:
-DOCX export
-Markdown export
-EPUB export
-better PDF cover templates
-model benchmark panel
-per-agent temperature settings
-queue system for multiple projects
-richer citation handling for knowledge chunks
-document preview before PDF build
-editable generated units
-manual re-run for a selected chapter/section
-export/import project archive
-improved chart renderer
-native bibliography manager
-custom theme editor
-profile editor for new document types
+
+## 🗺 Roadmap
+
+* DOCX export
+* Markdown export
+* EPUB export
+* Project import/export archive
+* Better PDF cover templates
+* Model benchmark panel
+* Per-agent temperature settings
+* Project queue system
+* Richer knowledge citations
+* Editable generated units
+* Manual re-run selected unit
+* Better chart renderer
+* Bibliography manager
+* Theme editor
+* Document profile editor
+* Agent preset library
+* Local model performance dashboard
+
 ---
-Contributing
-Contributions are welcome.
-Good areas to contribute:
-new document profiles
-better PDF layouts
-more visual block renderers
-export formats
-UI polish
-model presets
-OCR improvements
-packaging scripts
-tests
-documentation
-Suggested workflow:
+
+## 🤝 Contributing
+
+Good contribution areas:
+
+* Document profiles
+* PDF layouts
+* Visual block renderers
+* Export formats
+* UI polish
+* Model presets
+* OCR improvements
+* Packaging scripts
+* Tests
+* Documentation
+
+Workflow:
+
 ```bash
 fork the repo
-create a feature branch
+git checkout -b feature/name
 make changes
-run locally
-open a pull request
+test locally
+open pull request
 ```
+
 ---
-License
-This project is released under the MIT License.
+
+## 📜 License
+
 ```text
 MIT License
 
 Copyright (c) 2026 disavowed913
 ```
-You are free to use, modify, distribute, and build on this project, including for commercial use, as long as the original copyright notice and license are included.
+
+Use, modify, distribute, and build on this project with attribution and license preservation.
+
 ---
-Star the Project
-If The Writer helps you build books, reports, research documents, or offline AI writing workflows, please support the project:
-Star the repository
-Fork it
-Share it with builders
 
 <p align="center">
   <strong>Built locally. Written autonomously. Owned by the creator.</strong>
+</p>
+
+<p align="center">
+  <strong>The Writer — Local Multi-Agent Autonomous Writing System</strong>
 </p>
