@@ -633,13 +633,6 @@ python3 -m venv .venv
 source .venv/bin/activate
 ```
 
-Windows PowerShell:
-
-```powershell
-python -m venv .venv
-.\.venv\Scripts\Activate.ps1
-```
-
 ### 3. Install Dependencies
 
 ```bash
@@ -729,7 +722,8 @@ OCR Model        → glm-ocr:q8_0
 export PRESS_PORT=9000
 export OLLAMA_URL=http://localhost:11434
 export PRESS_DB_PATH=/data/the_writer.db
-python the_writer.py
+cd app
+python3 book.py
 ```
 
 ---
