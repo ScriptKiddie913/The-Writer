@@ -658,7 +658,7 @@ openpyxl>=3.1.0
 
 ```bash
 git clone https://github.com/YOUR_USERNAME/the-writer.git
-cd the-writer
+cd 'The Writer'
 ```
 
 ### 2. Create Virtual Environment
@@ -712,7 +712,8 @@ ollama pull glm-ocr:q8_0
 ### 6. Run
 
 ```bash
-python the_writer.py
+cd app
+python3 book.py
 ```
 
 ### 7. Open
