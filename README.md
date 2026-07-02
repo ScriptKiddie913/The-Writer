@@ -622,8 +622,8 @@ openpyxl>=3.1.0
 ### 1. Clone
 
 ```bash
-git clone https://github.com/YOUR_USERNAME/the-writer.git
-cd 'The Writer'
+[git clone https://github.com/ScriptKiddie913/The-Writer.git]
+cd 'The-Writer'
 ```
 
 ### 2. Create Virtual Environment
