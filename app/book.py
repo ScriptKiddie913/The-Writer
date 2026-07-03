@@ -102,7 +102,6 @@ DEFAULT_OCR_MODEL = os.environ.get("PRESS_OCR_MODEL", "glm-ocr:q8_0")
 FONT_DIR = os.environ.get("PRESS_FONT_DIR", os.path.join(BASE_DIR, "fonts"))
 
 os.makedirs(PDF_DIR, exist_ok=True)
-s
 MAX_UNITS = 80
 MIN_UNITS = 1
 MAX_PASSES_PER_UNIT = 14
@@ -1374,6 +1373,23 @@ not call attention to the correction, just get it right from here on:
         if chapter_meta.get("epigraph"):
             novel_meta += "Do NOT restate the epigraph — it will be placed before your text by the typesetter.\n"
 
+    # ----------------------------------------------------------------------
+    # FIX: safely convert key_events to a comma-separated string
+    key_events_raw = chapter.get('key_events', []) or []
+    if not isinstance(key_events_raw, list):
+        key_events_raw = []
+    key_events_parts = []
+    for item in key_events_raw:
+        if isinstance(item, dict):
+            # try to extract a meaningful description; fall back to string conversion
+            part = item.get('description') or item.get('text') or item.get('event') or str(item)
+        else:
+            part = str(item)
+        if part.strip():
+            key_events_parts.append(part.strip())
+    key_events_str = ', '.join(key_events_parts) if key_events_parts else ''
+    # ----------------------------------------------------------------------
+
     return f"""{header}
 
 PREMISE / BRIEF:
@@ -1387,7 +1403,7 @@ RELEVANT CONTEXT RETRIEVED FROM EARLIER {m['unit_plural'].upper()}:
 
 CURRENT {label.upper()} TO WRITE: "{chapter['title']}"
 SYNOPSIS: {chapter['synopsis']}
-{f"FORM: {chapter_meta.get('form','')}" if mode == "poetry" else f"KEY POINTS TO INCLUDE: {', '.join(chapter.get('key_events', []) or [])}"}
+{f"FORM: {chapter_meta.get('form','')}" if mode == "poetry" else f"KEY POINTS TO INCLUDE: {key_events_str}"}
 {novel_meta}
 {f"DOCUMENT TYPE: {doc_profile.get('label', '')}" if mode == 'report' else ''}
 {table_instruction}{correction_block}
@@ -1397,7 +1413,6 @@ TEXT WRITTEN SO FAR IN THIS {label.upper()} (tail shown for continuity):
 Target length: ~{unit_target_words} words. Written so far: ~{words_so_far} words.
 {opening}{closing_instruction}
 Write substantial, fully-developed content now.""".strip()
-
 
 # ---- Continuity / Review -----------------------------------------------------
 
