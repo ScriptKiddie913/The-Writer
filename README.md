@@ -129,6 +129,7 @@ ollama serve
 ### 4. Launch The Writer
 
 ```bash
+cd app
 python3 book.py
 ```
 
