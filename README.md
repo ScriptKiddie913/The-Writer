@@ -95,6 +95,13 @@ Pull a new model:
 
 ```bash
 ollama pull llama3.1:8b
+ollama pull dolphin3:8b
+ollama pull neural-chat:7b
+ollama pull phi3:latest
+ollama pull glm-ocr:q8_0
+ollama pull mathstral:7b
+ollama pull nomic-embed-text:latest
+ollama pull qwen3.5:latest
 ```
 
 ---
