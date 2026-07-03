@@ -102,7 +102,7 @@ DEFAULT_OCR_MODEL = os.environ.get("PRESS_OCR_MODEL", "glm-ocr:q8_0")
 FONT_DIR = os.environ.get("PRESS_FONT_DIR", os.path.join(BASE_DIR, "fonts"))
 
 os.makedirs(PDF_DIR, exist_ok=True)
-
+s
 MAX_UNITS = 80
 MIN_UNITS = 1
 MAX_PASSES_PER_UNIT = 14
@@ -2470,7 +2470,7 @@ def build_pdf(project_id: str) -> str:
         if toc_rows:
             toc_table = Table(toc_rows, colWidths=[5.6 * inch, 0.7 * inch])
             toc_table.setStyle(TableStyle([
-                ("LINEBELOW", (0, 0), (-1, -1), 0.2, theme["pdf_muted"], [1, 3]),
+                ("LINEBELOW", (0, 0), (-1, -1), 0.2, theme["pdf_muted"]),
                 ("VALIGN", (0, 0), (-1, -1), "TOP"),
                 ("LEFTPADDING", (0, 0), (-1, -1), 0),
                 ("RIGHTPADDING", (0, 0), (-1, -1), 0),
